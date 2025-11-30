@@ -1,0 +1,72 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+option csharp_namespace = "EVCS.GrpcService.TriNM.Protos";
+service StationGRPC{
+	rpc GetAllAsync(EmptyRequest) returns (StationList);
+	rpc GetByIdAsync(StationRequest) returns (Station);
+	rpc GetActiveStationsAsync(EmptyRequest) returns (StationList);
+	rpc SearchStationsAsync(SearchRequest) returns (StationList);
+	rpc CreateAsync(CreateStationRequest) returns (MutationRelay);
+	rpc UpdateAsync(Station) returns (MutationRelay);
+	rpc DeleteAsync(StationRequest) returns (Mutation);
+	rpc ActivateAsync(StationRequest) returns (Mutation);
+	rpc UpdateAvailabilityAsync(UpdateAvailabilityRequest) returns (Mutation);
+}
+
+message StationList{
+	repeated Station Items = 1;
+}
+
+message Station {
+  int32 StationId = 1;
+  string StationCode = 2;
+  string StationName = 3;
+  string Address = 4;
+  string City = 5;
+  string Province = 6;
+  double Latitude = 7;
+  double Longitude = 8;
+  int32 Capacity = 9;
+  int32 CurrentAvailable = 10;
+  string Owner = 11;
+  string ContactPhone = 12;
+  string ContactEmail = 13;
+  string Description = 14;
+  bool IsActive = 15;
+  string ImageURL = 16;
+  string CreatedDate = 17;
+  string ModifiedDate = 18;
+}
+
+message CreateStationRequest {
+  string StationCode = 1;
+  string StationName = 2;
+  string Address = 3;
+  string City = 4;
+  string Province = 5;
+  double Latitude = 6;
+  double Longitude = 7;
+  int32 Capacity = 8;
+  int32 CurrentAvailable = 9;
+  string Owner = 10;
+  string ContactPhone = 11;
+  string ContactEmail = 12;
+  string Description = 13;
+  string ImageURL = 14;
+}
+
+message StationRequest {
+  int32 StationId = 1;
+}
+
+message SearchRequest {
+  string SearchTerm = 1;
+}
+
+message UpdateAvailabilityRequest {
+  int32 StationId = 1;
+  int32 CurrentAvailable = 2;
+}
+

@@ -1,0 +1,195 @@
+@model EVCS.WebApp.TriNM.Models.StationSearchViewModel
+@using System.Collections.Generic
+
+@{
+    ViewData["Title"] = "Stations";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <a href="@Url.Action("Create")" class="btn btn-primary">Create New</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5>Search & Filter</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Index" method="get" id="searchForm">
+            <div class="row">
+                <div class="col-md-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" id="searchName" class="form-control" placeholder="Station name..." autocomplete="off" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Location" class="form-label"></label>
+                    <input asp-for="Location" id="searchLocation" class="form-control" placeholder="Address, City, Province..." autocomplete="off" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="IsActive" class="form-label"></label>
+                    <select asp-for="IsActive" id="searchIsActive" class="form-select">
+                        <option value="">All</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="@Url.Action("Index", new { })" class="btn btn-secondary">Reset</a>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" asp-for="PageNumber" id="pageNumber" value="1" />
+            <input type="hidden" asp-for="PageSize" value="10" />
+        </form>
+    </div>
+</div>
+
+@if (Model?.Items == null || !Model.Items.Any())
+{
+    <div class="alert alert-info">No data available.</div>
+}
+else
+{
+    <div class="mb-2">
+        <span>Total: <strong>@Model.TotalCount</strong> stations</span>
+    </div>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Capacity</th>
+                <th>Available</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="stationsTableBody">
+            @foreach (var item in Model.Items)
+            {
+                <tr data-station-id="@item.StationId">
+                    <td>@item.StationId</td>
+                    <td>@item.StationCode</td>
+                    <td class="station-name">@item.StationName</td>
+                    <td>@item.Address</td>
+                    <td>@item.City</td>
+                    <td>@item.Capacity</td>
+                    <td class="current-available">@item.CurrentAvailable</td>
+                    <td class="station-status">
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Details", new { id = item.StationId })" class="btn btn-sm btn-info">Details</a>
+                        <a href="@Url.Action("Edit", new { id = item.StationId })" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="@Url.Action("Delete", new { id = item.StationId })" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                @if (Model.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { name = Model.Name, location = Model.Location, isActive = Model.IsActive, pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Previous</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                }
+
+                @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { name = Model.Name, location = Model.Location, isActive = Model.IsActive, pageNumber = i, pageSize = Model.PageSize })">@i</a>
+                    </li>
+                }
+
+                @if (Model.PageNumber < Model.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { name = Model.Name, location = Model.Location, isActive = Model.IsActive, pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <div class="text-center mt-2">
+            <span>Page @Model.PageNumber of @Model.TotalPages</span>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script>
+        let searchTimeout;
+        const searchInputs = ['searchName', 'searchLocation', 'searchIsActive'];
+        
+        searchInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        document.getElementById('pageNumber').value = '1';
+                        document.getElementById('searchForm').submit();
+                    }, 500);
+                });
+            }
+        });
+
+        const isActiveSelect = document.getElementById('searchIsActive');
+        if (isActiveSelect) {
+            isActiveSelect.addEventListener('change', function() {
+                clearTimeout(searchTimeout);
+                document.getElementById('pageNumber').value = '1';
+                document.getElementById('searchForm').submit();
+            });
+        }
+    </script>
+}
+

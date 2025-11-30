@@ -1,0 +1,134 @@
+@model EVCS.WebApp.TriNM.Models.StationViewModel
+
+@{
+    ViewData["Title"] = "Delete Station";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StationId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StationId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StationCode)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StationCode)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StationName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StationName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.City)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.City)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Province)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Province)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Capacity)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Capacity)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CurrentAvailable)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CurrentAvailable)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Owner)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Owner)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsActive)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Inactive</span>
+            }
+        </dd>
+    </dl>
+    
+    <form action="@Url.Action("Delete", new { id = Model.StationId })" method="post" id="deleteForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="StationId" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Back to List</a>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('deleteForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const submitButton = form.querySelector('input[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.value = 'Deleting...';
+                    }
+                    
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success && data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to delete station'));
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                                submitButton.value = 'Delete';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred');
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.value = 'Delete';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</div>
+

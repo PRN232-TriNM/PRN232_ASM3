@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option csharp_namespace = "EVCS.GrpcService.TriNM.Protos";
+
+message EmptyRequest {}
+
+message MutationRelay {
+  int32 result = 1;
+}
+
+message Mutation{
+  bool result = 1;
+}
+
